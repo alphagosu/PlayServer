@@ -10,19 +10,20 @@ type handler func(http.ResponseWriter, *http.Request) error
 
 // RootHandler is the homepage.
 func RootHandler(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "GET" {
-		http.Error(w, "This path only supports GET requests", http.StatusNotFound)
-		return nil
-	}
-	fmt.Fprintf(w, "Server is running.")
+	fmt.Fprintf(w, "<h1>Server is running.</h1>")
 	return nil
 }
 
 // ErrorHandler is a wrapper for the handlers that returns and logs errors.
-func ErrorHandler(f handler) http.HandlerFunc {
+func ErrorHandler(f handler, method string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := f(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+		if r.Method != method {
+			err := fmt.Sprintf("This path only supports %s requests", method)
+			http.Error(w, err, http.StatusNotFound)
+		} else {
+			if err := f(w, r); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}
 	}
 }
