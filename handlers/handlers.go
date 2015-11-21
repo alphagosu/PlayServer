@@ -2,18 +2,17 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 )
 
 // Handler is a simple handler to requests.
 type Handler func(http.ResponseWriter, *http.Request) error
 
-//this is a list of strings
-type listOfStrings []string
-
 // RootHandler is the homepage.
 func RootHandler(w http.ResponseWriter, r *http.Request) error {
-	fmt.Fprintf(w, "<h1>Server is running.</h1>")
+	ServeContent(w, r, "<h1>Server is running.</h1>", http.StatusOK)
 	return nil
 }
 
@@ -21,7 +20,18 @@ func RootHandler(w http.ResponseWriter, r *http.Request) error {
 func ErrorHandler(f Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			ServeContent(w, r, err.Error(), http.StatusInternalServerError)
 		}
 	}
+}
+
+// ServeContent is a wrapper for responding to clients. It can log the
+func ServeContent(w http.ResponseWriter, r *http.Request, body string, statusCode int) {
+	logHeader := fmt.Sprintf(time.Now().Format("Jan 2 15:04:05 EST"))
+	path := fmt.Sprintf(", request on path '%s' ", r.URL.Path)
+	status := fmt.Sprintf("returned status code: %d", statusCode)
+
+	log.Println(logHeader + path + status)
+	w.WriteHeader(statusCode)
+	fmt.Fprintln(w, body)
 }

@@ -7,8 +7,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// type muxRouter func(r *mux.Router) func(path string, f func(http.ResponseWriter, *http.Request)) *mux.Route
-
 const (
 	// GET is the method get in a http or https request
 	GET = "GET"
