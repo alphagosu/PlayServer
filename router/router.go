@@ -26,7 +26,7 @@ func main() {
 
 // get specifies that only the GET method can work for that route.
 func get(r *mux.Router, path string, f h.Handler) {
-	r.HandleFunc("/", h.ErrorHandler(h.RootHandler)).Methods(GET)
+	r.HandleFunc("/", h.ErrorHandler(f)).Methods(GET)
 }
 
 // newLogger returns a custom logger to log events.
@@ -39,7 +39,7 @@ func newLogger() *log.Logger {
 // listenAndServe creates a new SERVER and uses it to listen for incoming
 // requests.
 // TODO: Find out how to log ALL requests that hit the server.
-// TODO: Find out how to throttle requests to 1 request a second. (brute forcing prevention)
+// TODO: Find out how to throttle requests to 1 request a second from the same source. (brute forcing prevention)
 // TODO: Find out how to block ip ranges for incoming requests. (DDoS prevention)
 func listenAndServe(addr string, handler http.Handler, logger *log.Logger) error {
 	server := &http.Server{Addr: addr, Handler: handler, ErrorLog: logger}
