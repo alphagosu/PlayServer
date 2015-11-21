@@ -3,49 +3,23 @@ package main
 import (
 	"net/http"
 
-	"github.com/alphagosu/PlayServer/handlers"
+	h "github.com/alphagosu/PlayServer/handlers"
+	"github.com/gorilla/mux"
 )
 
-// TODO: I need to write my own router using a http.mux
-// to allow for specifying the method a path can support.
+// type muxRouter func(r *mux.Router) func(path string, f func(http.ResponseWriter, *http.Request)) *mux.Route
+
+const (
+	// GET is the method get in a http or https request
+	GET = "GET"
+)
+
 func main() {
-	m := http.NewServeMux()
-	r := router{
-		mux:    m,
-		routes: []route{},
-	}
-	r.routes = append(r.routes, route{
-		path: "/",
-		h:    handlers.ErrorHandler(handlers.RootHandler),
-	})
-
-	r.registerRoutes()
-
-	//validRootMethods := []string{"GET", "POST"}
-	//http.HandleFunc("/", handlers.ErrorHandler(handlers.RootHandler, validRootMethods))
-
-	http.ListenAndServe(":8080", r.mux)
+	r := mux.NewRouter()
+	get(r, "/", h.RootHandler)
+	http.ListenAndServe(":8080", r)
 }
 
-//paths, routes, handler fucntions, router, mux
-
-// router
-// 	a route is composed of path, handler, methods(get, post.. etc)
-// 	mux
-//
-
-type router struct {
-	mux    *http.ServeMux
-	routes []route
-}
-
-type route struct {
-	path string
-	h    func(http.ResponseWriter, *http.Request)
-}
-
-func (rtr router) registerRoutes() {
-	for _, r := range rtr.routes {
-		rtr.mux.HandleFunc(r.path, r.h)
-	}
+func get(r *mux.Router, path string, f h.Handler) {
+	r.HandleFunc("/", h.ErrorHandler(h.RootHandler)).Methods(GET)
 }
